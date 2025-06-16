@@ -20,6 +20,9 @@
 #include <echion/config.h>
 #include <echion/frame.h>
 #include <echion/mojo.h>
+#include <echion/antithesis_sdk.h>
+
+extern bool reading_inner_frame = false;
 
 // ----------------------------------------------------------------------------
 
@@ -135,6 +138,11 @@ static size_t unwind_frame(PyObject* frame_addr, FrameStack& stack)
         }
         catch (Frame::Error& e)
         {
+            if (reading_inner_frame) {
+                UNREACHABLE("copy_memory should never fail when reading internal frames");
+            } else {
+                SOMETIMES(true, "copy_memory can fail when reading the last frame");
+            }
             break;
         }
 

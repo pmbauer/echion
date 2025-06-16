@@ -300,8 +300,12 @@ inline size_t TaskInfo::unwind(FrameStack& stack)
         PyObject* frame = coro_frames.top();
         coro_frames.pop();
 
+        reading_inner_frame = count != 0;
         count += unwind_frame(frame, stack);
     }
+
+    // reset global assertion flag
+    reading_inner_frame = false;
 
     return count;
 }

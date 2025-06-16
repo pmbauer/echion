@@ -1,4 +1,4 @@
-#include <echion/antithesis_instrumentation.h>
+#include <echion/antithesis_sdk.h>
 #include <echion/frame.h>
 
 #include <echion/render.h>
