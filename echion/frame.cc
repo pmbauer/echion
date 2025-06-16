@@ -1,3 +1,4 @@
+#include <echion/antithesis_instrumentation.h>
 #include <echion/frame.h>
 
 #include <echion/errors.h>
