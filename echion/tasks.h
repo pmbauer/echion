@@ -93,6 +93,7 @@ GenInfo::GenInfo(PyObject* gen_addr)
         }
         catch (GenInfo::Error&)
         {
+            REACHABLE("tasks.GenInfo::GenInfo(PyObject*): Failed creating await info");
             await = nullptr;
         }
     }
@@ -164,6 +165,7 @@ TaskInfo::TaskInfo(TaskObj* task_addr)
     }
     catch (GenInfo::Error&)
     {
+        REACHABLE("tasks.TaskInfo::TaskInfo(PyObject*): Failed creating coro info");
         throw GeneratorError();
     }
 
@@ -175,6 +177,7 @@ TaskInfo::TaskInfo(TaskObj* task_addr)
     }
     catch (StringTable::Error&)
     {
+        REACHABLE("tasks.TaskInfo::TaskInfo(PyObject*): Failed creating string for task name");
         throw Error();
     }
 
@@ -189,6 +192,7 @@ TaskInfo::TaskInfo(TaskObj* task_addr)
         }
         catch (TaskInfo::Error&)
         {
+            REACHABLE("tasks.TaskInfo::TaskInfo(TaskObj*): Failed creating waiter info");
             waiter = nullptr;
         }
     }
@@ -211,6 +215,7 @@ TaskInfo TaskInfo::current(PyObject* loop)
     }
     catch (MirrorError& e)
     {
+        REACHABLE("tasks.TaskInfo::current(PyObject*): Failed getting current task");
         throw Error();
     }
 }
@@ -242,6 +247,7 @@ std::vector<TaskInfo::Ptr> get_all_tasks(PyObject* loop)
             }
             catch (TaskInfo::Error& e)
             {
+                REACHABLE("tasks.get_all_tasks(PyObject*): Failed getting scheduled task info");
                 // We failed to get this task but we keep going
             }
         }
@@ -261,6 +267,7 @@ std::vector<TaskInfo::Ptr> get_all_tasks(PyObject* loop)
                 }
                 catch (TaskInfo::Error& e)
                 {
+                    REACHABLE("tasks.get_all_tasks(PyObject*): Failed getting eager task info");
                     // We failed to get this task but we keep going
                 }
             }
@@ -270,6 +277,7 @@ std::vector<TaskInfo::Ptr> get_all_tasks(PyObject* loop)
     }
     catch (MirrorError& e)
     {
+        REACHABLE("tasks.get_all_tasks(PyObject*): Failed getting all tasks");
         throw TaskInfo::Error();
     }
 }

@@ -89,8 +89,10 @@ Frame::Frame(PyCodeObject* code, int lasti)
         name = string_table.key(code->co_name);
 #endif
     }
-    catch (StringTable::Error&)
+    catch (StringTable::Error& e)
     {
+        REACHABLE("frames.Frame::Frame(PyCodeObject*,int): Failed creating frame",
+            {{"e", e.what()}});
         throw Error();
     }
 
@@ -106,8 +108,10 @@ Frame::Frame(unw_cursor_t& cursor, unw_word_t pc)
         filename = string_table.key(pc);
         name = string_table.key(cursor);
     }
-    catch (StringTable::Error&)
+    catch (StringTable::Error& e)
     {
+        REACHABLE("frames.Frame::Frame(unw_curosr_t,unw_word_t): Failed creating frame",
+            {{"e", e.what()}});
         throw Error();
     }
 }
@@ -378,8 +382,10 @@ Frame& Frame::get(PyCodeObject* code_addr, int lasti)
     {
         return frame_cache->lookup(frame_key);
     }
-    catch (LRUCache<uintptr_t, Frame>::LookupError&)
+    catch (LRUCache<uintptr_t, Frame>::LookupError& e)
     {
+        REACHABLE("frames.Frame::get(PyCodeObject*,int): Failed looking up frame",
+            {{"e", e.what()}});
         try
         {
             PyCodeObject code;
@@ -395,8 +401,10 @@ Frame& Frame::get(PyCodeObject* code_addr, int lasti)
             frame_cache->store(frame_key, std::move(new_frame));
             return f;
         }
-        catch (Frame::Error&)
+        catch (Frame::Error& frame_error)
         {
+            REACHABLE("frames.Frame::get(PyCodeObject*,int): Failed creating frame",
+                {{"e", frame_error.what()}});
             return INVALID_FRAME;
         }
     }
@@ -411,8 +419,9 @@ Frame& Frame::get(PyObject* frame)
     {
         return frame_cache->lookup(frame_key);
     }
-    catch (LRUCache<uintptr_t, Frame>::LookupError&)
+    catch (LRUCache<uintptr_t, Frame>::LookupError& e)
     {
+        REACHABLE("frames.Frame::get(PyObject*): Failed looking up frame", {{"e", e.what()}});
         auto new_frame = std::make_unique<Frame>(frame);
         new_frame->cache_key = frame_key;
         auto& f = *new_frame;
@@ -438,8 +447,10 @@ Frame& Frame::get(unw_cursor_t& cursor)
     {
         return frame_cache->lookup(frame_key);
     }
-    catch (LRUCache<uintptr_t, Frame>::LookupError&)
+    catch (LRUCache<uintptr_t, Frame>::LookupError& e)
     {
+        REACHABLE("frame.Frame::get(unw_cursor_t&): Failed looking up frame",
+            {{"e", e.what()}});
         try
         {
             auto frame = std::make_unique<Frame>(cursor, pc);
@@ -451,8 +462,10 @@ Frame& Frame::get(unw_cursor_t& cursor)
             frame_cache->store(frame_key, std::move(frame));
             return f;
         }
-        catch (Frame::Error&)
+        catch (Frame::Error& frame_error)
         {
+            REACHABLE("frame.Frame::get(unw_cursor_t&): Failed rendering frame",
+                {{"e", frame_error.what()}});
             return UNKNOWN_FRAME;
         }
     }
@@ -467,8 +480,10 @@ Frame& Frame::get(StringTable::Key name)
     {
         return frame_cache->lookup(frame_key);
     }
-    catch (LRUCache<uintptr_t, Frame>::LookupError&)
+    catch (LRUCache<uintptr_t, Frame>::LookupError& e)
     {
+        REACHABLE("frames.Frame::get(StringTable::Key): Failed looking up frame", {{"e", e.what()}});
+
         auto frame = std::make_unique<Frame>(name);
         frame->cache_key = frame_key;
         auto& f = *frame;

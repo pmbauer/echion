@@ -37,6 +37,8 @@
 #include <echion/threads.h>
 #include <echion/timing.h>
 
+#include <echion/antithesis_sdk.h>
+
 bool reading_internal_frame = false;
 
 // ----------------------------------------------------------------------------
@@ -112,6 +114,8 @@ static inline void _start()
     }
     catch (std::exception& e)
     {
+        REACHABLE("coremodule._start(): Failed opening renderer",
+            {{"e", e.what()}});
         return;
     }
 
@@ -393,8 +397,10 @@ static PyObject* track_greenlet(PyObject* Py_UNUSED(m), PyObject* args)
     {
         greenlet_name = string_table.key(name);
     }
-    catch (StringTable::Error&)
+    catch (StringTable::Error& e)
     {
+        REACHABLE("coremodule.track_greenlet(PyObject*,PyObject*): Failed looking up greelet",
+            {{"e", e.what()}});
         // We failed to get this task but we keep going
         PyErr_SetString(PyExc_RuntimeError, "Failed to get greenlet name from the string table");
         return NULL;

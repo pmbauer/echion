@@ -12,6 +12,8 @@
 
 #include <echion/vm.h>
 
+#include <echion/antithesis_sdk.h>
+
 // ----------------------------------------------------------------------------
 
 class StackChunkError : public std::exception
@@ -82,6 +84,8 @@ void StackChunk::update(_PyStackChunk* chunk_addr)
         }
         catch (StackChunkError& e)
         {
+            REACHABLE("stack_chunk.StackChunk::update(_PyStackChunk*): Failed updating chunk",
+                {{"e", e.what()}});
             previous = nullptr;
         }
     }

@@ -103,8 +103,10 @@ void unwind_native_stack()
         {
             native_stack.push_back(Frame::get(cursor));
         }
-        catch (Frame::Error&)
+        catch (Frame::Error& e)
         {
+            REACHABLE("stacks.unwind_native_stack(): Failed creating frame",
+                {{"e", e.what()}});
             break;
         }
     }
@@ -139,9 +141,10 @@ static size_t unwind_frame(PyObject* frame_addr, FrameStack& stack)
         catch (Frame::Error& e)
         {
             if (reading_inner_frame) {
-                UNREACHABLE("copy_memory should never fail when reading internal frames");
+                UNREACHABLE("stacks.unwind_frame(PyObject*,FrameStack&): copy_memory should never fail when reading internal frames");
             } else {
-                SOMETIMES(true, "copy_memory can fail when reading the last frame");
+                REACHABLE("stacks.unwind_frame(PyObject*,FrameStack&): copy_memory can fail when reading the last frame",
+                    {{"e", e.what()}});
             }
             break;
         }
@@ -211,6 +214,8 @@ static void unwind_python_stack(PyThreadState* tstate, FrameStack& stack)
     }
     catch (StackChunkError& e)
     {
+        REACHABLE("stacks.unwind_python_stack(PyThreadState*,FrameStack&): Failed updating stack chunk",
+            {{"e", e.what()}});
         stack_chunk = nullptr;
     }
 #endif
@@ -246,6 +251,8 @@ static void unwind_python_stack_unsafe(PyThreadState* tstate, FrameStack& stack)
     }
     catch (StackChunkError& e)
     {
+        REACHABLE("stacks.unwind_python_stack_unsafe(PyThreadState*,FrameStack&): Failed updating stack chunk",
+            {{"e", e.what()}});
         stack_chunk = nullptr;
     }
 #endif

@@ -23,6 +23,8 @@
 #include <echion/render.h>
 #include <echion/vm.h>
 
+#include <echion/antithesis_sdk.h>
+
 class StringError : public std::exception
 {
     const char* what() const noexcept override
@@ -117,6 +119,7 @@ public:
                 }
                 catch (LongError&)
                 {
+                    REACHABLE("strings.StringTable::key(PyObject*): Failed converting PyLong to long");
                     str = pyunicode_to_utf8(s);
                 }
 #else
@@ -127,6 +130,7 @@ public:
             }
             catch (StringError&)
             {
+                REACHABLE("strings.StringTable::key(PyObject*): Failed pyunicode_to_utf8");
                 throw Error();
             }
         }
@@ -176,6 +180,7 @@ public:
             }
             catch (StringError&)
             {
+                REACHABLE("strings.StringTable::key(unw_word_t): Failed string conversion");
                 throw Error();
             }
         }

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <echion/antithesis_sdk.h>
 
 #if defined PL_LINUX
 #include <fcntl.h>
@@ -124,6 +125,8 @@ public:
             }
             catch (std::exception& e)
             {
+                REACHABLE("vm.VmReader::get_instance(): Failed creating VmReader",
+                    {{"e", e.what()}});
                 std::cerr << "Failed to initialize VmReader: " << e.what() << std::endl;
             }
         }

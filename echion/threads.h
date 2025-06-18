@@ -171,6 +171,7 @@ void ThreadInfo::unwind(PyThreadState* tstate)
             }
             catch (TaskInfo::Error&)
             {
+                REACHABLE("threads.ThreadInfo::unwind(PyThreadState*): Failed to unwind tasks");
                 // We failed to unwind tasks
             }
         }
@@ -541,6 +542,7 @@ static void for_each_thread(PyInterpreterState* interp,
                 }
                 catch (ThreadInfo::Error&)
                 {
+                    REACHABLE("threads.for_each_thread(PyInterpreterState*): Failed to create thread info object");
                     // We failed to create the thread info object so we skip it.
                     // We'll likely try again later with the valid thread
                     // information.
