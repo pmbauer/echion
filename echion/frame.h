@@ -123,3 +123,5 @@ inline auto UNKNOWN_FRAME = Frame(StringTable::UNKNOWN);
 inline LRUCache<uintptr_t, Frame>* frame_cache = nullptr;
 void init_frame_cache(size_t capacity);
 void reset_frame_cache();
+
+extern bool reading_inner_frame;

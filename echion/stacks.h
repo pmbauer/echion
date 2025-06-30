@@ -22,8 +22,6 @@
 #include <echion/mojo.h>
 #include <echion/antithesis_sdk.h>
 
-extern bool reading_inner_frame = false;
-
 // ----------------------------------------------------------------------------
 
 class FrameStack : public std::deque<Frame::Ref>
@@ -140,12 +138,8 @@ static size_t unwind_frame(PyObject* frame_addr, FrameStack& stack)
         }
         catch (Frame::Error& e)
         {
-            if (reading_inner_frame) {
-                UNREACHABLE("stacks.unwind_frame(PyObject*,FrameStack&): copy_memory should never fail when reading internal frames");
-            } else {
-                REACHABLE("stacks.unwind_frame(PyObject*,FrameStack&): copy_memory can fail when reading the last frame",
-                    {{"e", e.what()}});
-            }
+            REACHABLE("stacks.unwind_frame(PyObject*,FrameStack&): failed reading frame",
+                      {{"e", e.what()}});
             break;
         }
 

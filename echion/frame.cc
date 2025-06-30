@@ -3,6 +3,8 @@
 
 #include <echion/render.h>
 
+bool reading_inner_frame = false;
+
 // ----------------------------------------------------------------------------
 #if PY_VERSION_HEX >= 0x030b0000
 static inline int _read_varint(unsigned char* table, ssize_t size, ssize_t* i)
@@ -390,7 +392,14 @@ Frame& Frame::get(PyCodeObject* code_addr, int lasti)
         {
             PyCodeObject code;
             if (copy_type(code_addr, code))
+            {
+                if (reading_inner_frame)
+                    UNREACHABLE("frame.Frame::get(PyObject*,int): copy_memory should never fail when reading internal frames");
+                else
+                    REACHABLE("frame.Frame::get(PyObject*,int): copy_memory can fail when reading the last frame",
+                        {{"e", e.what()}});
                 return INVALID_FRAME;
+            }
 
             auto new_frame = std::make_unique<Frame>(&code, lasti);
             new_frame->cache_key = frame_key;
