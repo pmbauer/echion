@@ -28,6 +28,7 @@
 #include <echion/stacks.h>
 #include <echion/tasks.h>
 #include <echion/timing.h>
+#include <echion/antithesis_sdk.h>
 
 class ThreadInfo
 {
@@ -68,7 +69,8 @@ public:
         : thread_id(thread_id), native_id(native_id), name(name)
     {
 #if defined PL_LINUX
-        pthread_getcpuclockid((pthread_t)thread_id, &cpu_clock_id);
+        int clockid_ret = pthread_getcpuclockid((pthread_t)thread_id, &cpu_clock_id);
+        ALWAYS(clockid_ret == 0, "pthread_getcpuclockid should always be zero", {{"ret", clockid_ret}});
 #elif defined PL_DARWIN
         mach_port = pthread_mach_thread_np((pthread_t)thread_id);
 #endif
@@ -84,8 +86,14 @@ void ThreadInfo::update_cpu_time()
 {
 #if defined PL_LINUX
     struct timespec ts;
-    if (clock_gettime(cpu_clock_id, &ts))
+    int gettime_ret = clock_gettime(cpu_clock_id, &ts);
+    REACHABLE("clock_gettime", {{"tv_sec", (unsigned long)ts.tv_sec}, {"tv_nsec", (unsigned long)ts.tv_nsec}});
+    printf("clock_gettime ret=%d tv_sec=%d tv_nsec=%d\n", gettime_ret, ts.tv_sec, ts.tv_nsec);
+    if (gettime_ret)
+    {
+        UNREACHABLE("clock_gettime failed", {{"ret", gettime_ret}});
         return;
+    }
 
     this->cpu_time = TS_TO_MICROSECOND(ts);
 #elif defined PL_DARWIN
