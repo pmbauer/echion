@@ -14,6 +14,7 @@
 #include <mutex>
 #include <sstream>
 #include <unordered_map>
+#include <errno.h>
 
 #if defined PL_LINUX
 #include <time.h>
@@ -91,7 +92,9 @@ void ThreadInfo::update_cpu_time()
     printf("clock_gettime ret=%d tv_sec=%d tv_nsec=%d\n", gettime_ret, ts.tv_sec, ts.tv_nsec);
     if (gettime_ret)
     {
-        UNREACHABLE("clock_gettime failed", {{"ret", gettime_ret}});
+        char* err = strerror(errno);
+        printf("clock_gettime errno=%s\n", err);
+        UNREACHABLE("clock_gettime failed", {{"ret", gettime_ret}, {"errno", err}});
         return;
     }
 
