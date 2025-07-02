@@ -393,6 +393,7 @@ Frame& Frame::get(PyCodeObject* code_addr, int lasti)
             PyCodeObject code;
             if (copy_type(code_addr, code))
             {
+                SOMETIMES(reading_inner_frame, "frame.Frame::get(PyObject*,int): should read internal frames");
                 if (reading_inner_frame)
                     UNREACHABLE("frame.Frame::get(PyObject*,int): copy_memory should never fail when reading internal frames");
                 else
