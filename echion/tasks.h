@@ -37,6 +37,7 @@
 #include <echion/timing.h>
 
 #include <echion/cpython/tasks.h>
+#include <echion/antithesis_sdk.h>
 
 class GenInfo
 {
@@ -307,6 +308,8 @@ inline size_t TaskInfo::unwind(FrameStack& stack)
     {
         PyObject* frame = coro_frames.top();
         coro_frames.pop();
+
+        SOMETIMES_GREATER_THAN(count, 0, "count should be > 0 on inner frames");
 
         reading_inner_frame = count != 0;
         count += unwind_frame(frame, stack);
